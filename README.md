@@ -1,9 +1,9 @@
-# Official COVID-19 data from Statens Seruminstitut
+# Official COVID-19 data from Sundhedsstyrelsen
 
-This is the unofficial repository for the official COVID-19 data covering Denmark from [Statens Seruminstitut](https://www.sst.dk).
+This is the unofficial repository for the official COVID-19 data covering Denmark from [Sundhedsstyrelsen](https://www.sst.dk).
 
 ## Why
-Statens Seruminstitut is not willing to publish the COVID-19 data in a machine readable format.
+Sundhedsstyrelsen is not willing to publish the COVID-19 data in a machine readable format.
 
 For the public to be able to analyse the situation themselves, this repository is created to provide machine readable data for the COVID-19 virus.
 
