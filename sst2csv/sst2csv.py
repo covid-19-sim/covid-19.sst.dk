@@ -1,18 +1,19 @@
 import csv
 
 import lxml.html
-import pandas
 import re
 import requests
-import pandas as pd
 from bs4 import BeautifulSoup as bs
 import urllib.request
+
+DATE_REGEXP = '^(\d+)\. (\w*)$'
 
 URL = 'https://www.sst.dk/da/corona/tal-og-overvaagning'
 
 XPATH_INDLAGT = ' /html/body/div[3]/main/article/div[2]/div/div[20]/div[1]/table'
 XPATH_ICU = '     /html/body/div[3]/main/article/div[2]/div/div[20]/div[2]/table'
 XPATH_ICU_RESP = '/html/body/div[3]/main/article/div[2]/div/div[20]/div[3]/table'
+XPATH_TESTS = '   /html/body/div[3]/main/article/div[2]/div/div[4]/div/table'
 
 DATE_COLUMN = 0
 NATIONAL_COLUMN = 6
@@ -26,8 +27,8 @@ NATIONAL_COLUMN = 6
 def get_soup(url):
     """Constructs and returns a soup using the HTML content of `url` passed"""
 
-#    contents = urllib.request.urlopen(URL).read()
-    contents = open('https _www.sst.dk_da_corona_tal-og-overvaagning.html', 'r').read()
+    contents = urllib.request.urlopen(URL).read()
+#    contents = open('https _www.sst.dk_da_corona_tal-og-overvaagning.html', 'r').read()
     print("File fetched")
     tree = lxml.html.document_fromstring(contents)
     return tree
@@ -50,8 +51,8 @@ def get_the_table(soup):
 def get_table_rows(table):
     """Given a table, returns all its rows"""
     rows = []
-    assert "Hele landet" == table.xpath(".//tr")[0].xpath('.//td')[NATIONAL_COLUMN].text_content().strip()
-    for tr in table.xpath(".//tr")[2:]:
+#    assert "Hele landet" == table.xpath(".//tr")[0].xpath('.//td')[NATIONAL_COLUMN].text_content().strip()
+    for tr in table.xpath(".//tr")[1:]:
         cells = []
         # grab all td tags in this table row
         tds = tr.xpath(".//td")
@@ -65,17 +66,25 @@ def get_table_rows(table):
             # use regular td tags
             for td in tds:
                 cells.append(td.text_content().strip())
-        date = cells[0].split('.')
-        monthday = int(date[0])
-        month = ['januar', 'februar', 'marts', 'april', 'maj', 'juni', 'juli'].index(date[1].strip()) + 1
+        date_match = re.compile(DATE_REGEXP).match(cells[0])
+        if not date_match:
+            continue
+        monthday = int(date_match.groups()[0])
+        month = ['januar', 'februar', 'marts', 'april', 'maj', 'juni', 'juli'].index(date_match.groups()[1]) + 1
         cells[0] = f"2020-{month:02}-{monthday:02}"
         rows.append(cells)
     return rows
 
 
 def sanitise_number(cell: str):
-    content = cell.replace('✱', '')
-    return 0 if content == '' else content
+    if not cell:
+        return None
+    else:
+        content = cell.replace('✱', '')
+        if content == '':
+            return None
+        else:
+            return int(content.replace('.', ''))
 
 def merge_rows(hosp_list, icu_list, resp_list):
     """
@@ -107,20 +116,12 @@ def merge_rows(hosp_list, icu_list, resp_list):
 
 
 def save_as_csv(table_name, headers, rows):
-    pd.DataFrame(rows, columns=headers).to_csv(f"{table_name}.csv")
-
-
-tree = get_soup(URL)
-table_hospital = tree.xpath(XPATH_INDLAGT)
-assert len(table_hospital) == 1, len(table_hospital)
-table_icu = tree.xpath(XPATH_ICU)
-assert len(table_icu) == 1
-table_resp = tree.xpath(XPATH_ICU_RESP)
-assert len(table_resp) == 1
-
-hospital_table = merge_rows(get_table_rows(table_hospital[0]),
-                            get_table_rows(table_icu[0]),
-                            get_table_rows(table_resp[0]))
+    with open(table_name + '.csv', mode='w') as data_file:
+        data_writer = csv.writer(data_file, lineterminator='\n', delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        data_writer.writerow(headers)
+        for row in rows:
+            assert len(row) == len(headers)
+            data_writer.writerow(row)
 
 
 def add_early(complete_table):
@@ -133,6 +134,7 @@ def add_early(complete_table):
             complete_table.append(row)
     return sorted(complete_table, key=lambda r: r[0])
 
+
 def add_deaths(full_time_table):
     with open('sst-covid19-deaths.csv') as csvDataFile:
         csvReader = csv.reader(csvDataFile, lineterminator='\n')
@@ -142,16 +144,59 @@ def add_deaths(full_time_table):
     death_count = 0
     for i in range(len(full_time_table)-1):
         assert full_time_table[i][0] == death_table[i][0], f"Date mismatch {full_time_table[i][0]} != {death_table[i][0]}"
-        death_count += int(death_table[i][1])
+        death_count += sanitise_number(death_table[i][1])
         full_time_table[i].append(death_count)
-    full_time_table[-1].append('-')
+    full_time_table[-1].append(None)
     return full_time_table
 
 
-full_time_table = add_early(hospital_table)
-full_time_table_death = add_deaths(full_time_table)
+def add_tests(table):
+    tests = [['2020-03-11', None, None, None],
+             ['2020-03-12', None, None, None],
+             ['2020-03-13', None, None, None],
+             ] + get_table_rows(table_test[0])
+    tests[-1][1] = None  # Last day is inaccurate
+    tests[-1][2] = None  # Last day is inaccurate
+    tests[-1][3] = None  # Last day is inaccurate
+    assert len(tests) == len(table), f"Tabel length mismath {len(tests)} != {len(table)}"
+    result_rows = []
+    test_count = 0
+    confirmed_count = 0
+    for i in range(len(table)):
+        assert table[i][0] == tests[i][0], f"Date mismatch {table[i][0]} != {tests[i][0]}"
+        day_tests = sanitise_number(tests[i][2])
+        if day_tests:
+            test_count += day_tests
+        day_confirmed = sanitise_number(tests[i][1])
+        if day_confirmed:
+            confirmed_count += day_confirmed
+        table[i] = [table[i][0],  # Date
+                    test_count if day_tests else None,  # Tested
+                    confirmed_count if day_confirmed else None,  # Infected
+                    ] + table[i][1:]
+    return table
 
-headers = ['Date', 'Hospitalised', 'ICU', 'ICU and ventilator', 'Death count']
+
+tree = get_soup(URL)
+table_hospital = tree.xpath(XPATH_INDLAGT)
+assert len(table_hospital) == 1, len(table_hospital)
+table_icu = tree.xpath(XPATH_ICU)
+assert len(table_icu) == 1
+table_resp = tree.xpath(XPATH_ICU_RESP)
+assert len(table_resp) == 1
+table_test = tree.xpath(XPATH_TESTS)
+assert len(table_resp) == 1
+
+hospital_table = merge_rows(get_table_rows(table_hospital[0]),
+                            get_table_rows(table_icu[0]),
+                            get_table_rows(table_resp[0])
+                            )
+
+full_time_table = add_early(hospital_table)
+test_table = add_tests(full_time_table)
+full_time_table_death = add_deaths(test_table)
+
+headers = ['Date', 'Tested', 'Confirmed', 'Hospitalised', 'ICU', 'ICU and ventilator', 'Death count']
 
 save_as_csv('covid-19-dk', headers, full_time_table_death)
 
