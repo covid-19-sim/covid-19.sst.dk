@@ -60,7 +60,7 @@ def sanitise_number(cell: str):
     else:
         content = cell.replace('✱', '')
         if content == '':
-            return None
+            return 0
         else:
             return int(content.replace('.', ''))
 
