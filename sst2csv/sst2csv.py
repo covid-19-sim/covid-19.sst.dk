@@ -2,8 +2,6 @@ import csv
 
 import lxml.html
 import re
-import requests
-from bs4 import BeautifulSoup as bs
 import urllib.request
 
 DATE_REGEXP = '^(\d+)\. (\w*)$'
@@ -34,10 +32,6 @@ def get_soup(url):
     return tree
     # return the soup
     return bs(contents, "html.parser")
-
-
-def get_the_table(soup):
-    return soup.select(CSS_SELECTOR)
 
 
 # def get_table_headers(table):
@@ -116,7 +110,7 @@ def merge_rows(hosp_list, icu_list, resp_list):
 
 
 def save_as_csv(table_name, headers, rows):
-    with open(table_name + '.csv', mode='w') as data_file:
+    with open("../" + table_name + '.csv', mode='w') as data_file:
         data_writer = csv.writer(data_file, lineterminator='\n', delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         data_writer.writerow(headers)
         for row in rows:
