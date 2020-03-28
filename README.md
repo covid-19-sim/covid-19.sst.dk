@@ -9,7 +9,7 @@ For the public to be able to analyse the situation themselves, this repository i
 
 ## How
 
-The most recent data is grabbed from https://www.sst.dk/da/corona/tal-og-overvaagning using a quick-and-dirty script.
+Most recent data is grabbed from https://www.sst.dk/da/corona/tal-og-overvaagning using a quick-and-dirty script.
 However...
 
 Some historical data that once was released and later has been removed from the above source has been added manually in certain files.
@@ -23,6 +23,15 @@ That includes
 * Deaths
 
 # Comments on data
+
+## Data sources and quality
+Some data comes from the _regions_ is then sent to SST and is then published on the page mentioned above.
+Some data is collected by Statens Serum Institut and then sent to SST and is then published on the page mentioned above.
+A number of times we have seen that data for older dates have been changed on the page.
+The reason for this is unknown.
+
+Finally the information is then copied again to https://politi.dk/coronavirus-i-danmark/foelg-smittespredningen-globalt-regionalt-og-lokalt
+
 
 ## Time shift
 The *Tested*, *Confirmed* and *Death count* seems to be registered by number at midnight.
