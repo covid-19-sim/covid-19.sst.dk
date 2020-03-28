@@ -16,11 +16,6 @@ XPATH_TESTS = '   /html/body/div[3]/main/article/div[2]/div/div[4]/div/table'
 DATE_COLUMN = 0
 NATIONAL_COLUMN = 6
 
-#CSS_SELECTOR = 'body > div.main__content > main > article > div.o-content-block.u-grid.u-grid--space-between.u-grid--no-gutter.u-ie > div > div:nth-child(33) > div > table'
-
-#USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36"
-# US english
-#LANGUAGE = "en-US,en;q=0.5"
 
 def get_soup(url):
     """Constructs and returns a soup using the HTML content of `url` passed"""
@@ -28,18 +23,7 @@ def get_soup(url):
     contents = urllib.request.urlopen(URL).read()
 #    contents = open('https _www.sst.dk_da_corona_tal-og-overvaagning.html', 'r').read()
     print("File fetched")
-    tree = lxml.html.document_fromstring(contents)
-    return tree
-    # return the soup
-    return bs(contents, "html.parser")
-
-
-# def get_table_headers(table):
-#     """Given a table soup, returns all the headers"""
-#     headers = []
-#     for th in table.find("tr").find_all("th"):
-#         headers.append(th.text.strip())
-#     return headers
+    return lxml.html.document_fromstring(contents)
 
 
 def get_table_rows(table):
@@ -193,17 +177,3 @@ full_time_table_death = add_deaths(test_table)
 headers = ['Date', 'Tested', 'Confirmed', 'Hospitalised', 'ICU', 'ICU and ventilator', 'Death count']
 
 save_as_csv('covid-19-dk', headers, full_time_table_death)
-
-# def xpath2regex(xpath: str):
-#     elems1 = xpath.split('/')
-#     elems = []
-#     regexp = re.compile('^.*?\[(\d+)\]$')
-#     for e in elems1:
-#         for repeat = int(regexp.match(e).group(1))
-#     regex = '.*?'
-#     regex += '.*?'.join(['<' + e + '>' for e in elems])
-#     print(regex)
-#
-# #pandas.read_html('https://www.sst.dk/da/corona/tal-og-overvaagning',)
-#
-# xpath2regex(XPATH)
