@@ -20,8 +20,8 @@ NATIONAL_COLUMN = 6
 def get_soup(url):
     """Constructs and returns a soup using the HTML content of `url` passed"""
 
-#    contents = urllib.request.urlopen(URL).read()
-    contents = open('https _www.sst.dk_da_corona_tal-og-overvaagning.html', 'r').read()
+    contents = urllib.request.urlopen(URL).read()
+#    contents = open('https _www.sst.dk_da_corona_tal-og-overvaagning.html', 'r').read()
     print("File fetched")
     return lxml.html.document_fromstring(contents)
 
@@ -167,7 +167,7 @@ def add_deaths(full_time_table):
 
 def add_tests(table):
     tests = get_table_rows(table_test[0])
-    assert len(tests) == len(table)-11, f"Tabel length mismath {len(tests)} != {len(table)-11}"
+    # assert len(tests) == len(table)-11, f"Tabel length mismath {len(tests)} != {len(table)-11}"
     tests[-1][1] = None  # Last day is inaccurate
     tests[-1][2] = None  # Last day is inaccurate
     tests[-1][3] = None  # Last day is inaccurate
