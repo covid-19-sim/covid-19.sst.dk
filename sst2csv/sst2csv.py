@@ -20,8 +20,8 @@ NATIONAL_COLUMN = 6
 def get_soup(url):
     """Constructs and returns a soup using the HTML content of `url` passed"""
 
-    contents = urllib.request.urlopen(URL).read()
-#    contents = open('https _www.sst.dk_da_corona_tal-og-overvaagning.html', 'r').read()
+#    contents = urllib.request.urlopen(URL).read()
+    contents = open('https _www.sst.dk_da_corona_tal-og-overvaagning.html', 'r').read()
     print("File fetched")
     return lxml.html.document_fromstring(contents)
 
@@ -84,7 +84,9 @@ def merge_rows(hosp_list, icu_list, resp_list):
     for i in range(len(hosp_list)):
         assert hosp_list[i][0] == icu_list[i][0]
         assert hosp_list[i][0] == icu_list[i][0]
-        cols = [hosp_list[i][0],
+        cols = [hosp_list[i][0],  #Date
+                None,  # Tested
+                None,  # Verified
                 sanitise_number(hosp_list[i][NATIONAL_COLUMN]),
                 sanitise_number(icu_list[i][NATIONAL_COLUMN]),
                 sanitise_number(resp_list[i][NATIONAL_COLUMN])
@@ -105,53 +107,91 @@ def save_as_csv(table_name, headers, rows):
 def add_early(complete_table):
     with open('sst-covid19-early.csv') as csvDataFile:
         csvReader = csv.reader(csvDataFile, lineterminator='\n')
-        early_records = list(csvReader)
-        assert len(early_records) == 6
+        early_records = sorted(list(csvReader)[1:], key=lambda r: r[0])
+        assert len(early_records) == 14, len(early_records)
         assert len(early_records[0]) == len(complete_table[0]), f'Number of columns mismatch {len(early_records[0])} != {len(complete_table[0])}'
-        for row in early_records[1:]:
-            complete_table.append(row)
+        ctj = 0
+        test_count = 0
+        confirmed_count = 0
+        for i in range(0, len(early_records)):
+            day_tests = sanitise_number(early_records[i][1])
+            if day_tests:
+                test_count += day_tests
+            day_confirmed = sanitise_number(early_records[i][2])
+            if day_confirmed:
+                confirmed_count += day_confirmed
+            if early_records[i][0] < complete_table[ctj][0]:
+                complete_table.append([early_records[i][0],
+                                       test_count,
+                                       confirmed_count,
+                                       sanitise_number(early_records[i][3]),
+                                       sanitise_number(early_records[i][4]),
+                                       sanitise_number(early_records[i][5])
+                                       ])
+            elif early_records[i][0] == complete_table[ctj][0]:
+                assert len(early_records[i]) == len(complete_table[ctj])
+                assert not complete_table[ctj][1]
+                assert not complete_table[ctj][2]
+                for col in range(3,len(early_records[i])):
+                    if early_records[i][col] != complete_table[ctj][col]:
+                        print(f"Data mismatch")
+                    elif not complete_table[ctj][col] and early_records[i][col]:
+                        complete_table[ctj][col] = sanitise_number(early_records[i][col])
+                    else:
+                        raise NotImplementedError()
+            else:
+                break
     return sorted(complete_table, key=lambda r: r[0])
 
 
 def add_deaths(full_time_table):
     with open('sst-covid19-deaths.csv') as csvDataFile:
         csvReader = csv.reader(csvDataFile, lineterminator='\n')
-        death_table = sorted(list(csvReader)[1:], key=lambda r: r[0])
+        death_tab = list(csvReader)[1:]
+        death_table = sorted(death_tab, key=lambda r: r[0])
     # Death numbers are true registration by midnight, others numbers are half a day too old registered at noon.
-    assert len(death_table) == len(full_time_table)-1, f'Number of rows mismatch {len(death_table)} != {len(full_time_table)-1}'
+    assert len(death_table) == len(full_time_table)-9, f'Number of rows mismatch {len(death_table)} != {len(full_time_table)-1}'
+    death_offset = 0
     death_count = 0
     for i in range(len(full_time_table)-1):
-        assert full_time_table[i][0] == death_table[i][0], f"Date mismatch {full_time_table[i][0]} != {death_table[i][0]}"
-        death_count += sanitise_number(death_table[i][1])
+        if full_time_table[i][0] < death_table[i+death_offset][0]:
+            death_count = 0
+            death_offset -= 1
+        else:
+            assert full_time_table[i][0] == death_table[i+death_offset][0], f"Date mismatch {full_time_table[i][0]} != {death_table[i][0]}"
+            death_count += sanitise_number(death_table[i+death_offset][1])
         full_time_table[i].append(death_count)
     full_time_table[-1].append(None)
     return full_time_table
 
 
 def add_tests(table):
-    tests = [['2020-03-11', None, None, None],
-             ['2020-03-12', None, None, None],
-             ['2020-03-13', None, None, None],
-             ] + get_table_rows(table_test[0])
+    tests = get_table_rows(table_test[0])
+    assert len(tests) == len(table)-11, f"Tabel length mismath {len(tests)} != {len(table)-11}"
     tests[-1][1] = None  # Last day is inaccurate
     tests[-1][2] = None  # Last day is inaccurate
     tests[-1][3] = None  # Last day is inaccurate
-    assert len(tests) == len(table), f"Tabel length mismath {len(tests)} != {len(table)}"
-    result_rows = []
     test_count = 0
     confirmed_count = 0
+    test_offset = 0
     for i in range(len(table)):
-        assert table[i][0] == tests[i][0], f"Date mismatch {table[i][0]} != {tests[i][0]}"
-        day_tests = sanitise_number(tests[i][2])
+        if table[i][0] < tests[i+test_offset][0]:
+            test_count = table[i][1]
+            confirmed_count = table[i][2]
+            test_offset -= 1
+            continue
+        day_tests = sanitise_number(tests[i+test_offset][2])
         if day_tests:
             test_count += day_tests
-        day_confirmed = sanitise_number(tests[i][1])
+        day_confirmed = sanitise_number(tests[i+test_offset][1])
         if day_confirmed:
             confirmed_count += day_confirmed
+        if table[i][1] and (table[i][0][1] != test_count):
+            print(f"Data mismatch: Early data tested {table[i][1]}. Current data reported for tested {test_count}. Using current data")
         table[i] = [table[i][0],  # Date
                     test_count if day_tests else None,  # Tested
                     confirmed_count if day_confirmed else None,  # Infected
-                    ] + table[i][1:]
+                    ] + table[i][3:]
     return table
 
 
