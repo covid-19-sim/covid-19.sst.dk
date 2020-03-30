@@ -132,13 +132,15 @@ def add_early(complete_table):
                 assert len(early_records[i]) == len(complete_table[ctj])
                 assert not complete_table[ctj][1]
                 assert not complete_table[ctj][2]
-                for col in range(3,len(early_records[i])):
-                    if early_records[i][col] != complete_table[ctj][col]:
-                        print(f"Data mismatch")
-                    elif not complete_table[ctj][col] and early_records[i][col]:
+                complete_table[ctj][1] = test_count
+                complete_table[ctj][2] = confirmed_count
+                for col in range(3, len(early_records[i])):
+                    if not complete_table[ctj][col] and early_records[i][col]:
                         complete_table[ctj][col] = sanitise_number(early_records[i][col])
+                    elif complete_table[ctj][col] != sanitise_number(early_records[i][col]):
+                        print(f"Data mismatch")
                     else:
-                        raise NotImplementedError()
+                        pass  # everything seems fine
             else:
                 break
     return sorted(complete_table, key=lambda r: r[0])
