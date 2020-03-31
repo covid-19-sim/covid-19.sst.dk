@@ -81,8 +81,7 @@ def generate_national_table():
 
     sorted_dates = sorted(dates)
     rows = []
-#    headers = ['Date', 'Tested', 'Total tested', 'Confirmed', 'Total confirmed', 'Hospitalised', 'ICU', 'ICU-vent', 'Deaths', 'Total deaths']
-    headers = ['Date','Tested','Confirmed','Hospitalised','ICU','ICU and ventilator','Death count']
+    headers = ['Date', 'Tested', 'Total tested', 'Confirmed', 'Total confirmed', 'Hospitalised', 'ICU', 'ICU-vent', 'Deaths', 'Total deaths']
     total_tested = 0
     total_confirmed = 0
     total_deaths = 0
@@ -91,14 +90,14 @@ def generate_national_table():
         total_confirmed += sanitise_number(tests[date]['Laboratorie-bekræftede COVID-19 tilfælde']) if date in tests else 0
         total_deaths += sanitise_number(deaths[date]['Antal dødsfald med COVID-19 infektion']) if date in deaths else 0
         row = [date,
- #              sanitise_number(tests[date]['Antal testede for COVID-19']) if date in tests else None,
+               sanitise_number(tests[date]['Antal testede for COVID-19']) if date in tests else None,
                total_tested if date in tests else None,
-#               sanitise_number(tests[date]['Laboratorie-bekræftede COVID-19 tilfælde']) if date in tests else None,
+               sanitise_number(tests[date]['Laboratorie-bekræftede COVID-19 tilfælde']) if date in tests else None,
                total_confirmed if date in tests else None,
                sanitise_number(hospitalised[date]['Hele landet']) if date in hospitalised else None,
                sanitise_number(icu[date]['Hele landet']) if date in icu else None,
                sanitise_number(icu_vent[date]['Hele landet']) if date in icu_vent else None,
-#               sanitise_number(deaths[date]['Antal dødsfald med COVID-19 infektion']) if date in deaths else None,
+               sanitise_number(deaths[date]['Antal dødsfald med COVID-19 infektion']) if date in deaths else None,
                total_deaths if date in deaths else None,
                ]
         rows.append(row)
