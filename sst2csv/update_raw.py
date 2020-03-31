@@ -21,12 +21,44 @@ def save_as_csv(table_name, headers, rows):
             assert len(row) == len(headers)
             data_writer.writerow(row)
 
+def update_csv(table_name, headers, new_rows):
+    with open('../' + table_name + '.csv', mode='r') as csvDataFile:
+        csvReader = csv.reader(csvDataFile, lineterminator='\n')
+        cur_rows = list(csvReader)
+        cur_data_rows = sorted(cur_rows[1:], key=lambda r: r[0])
+        assert headers == cur_rows[0]
+        cur_row = 0
+        new_row = 0
+        while cur_row < len(cur_data_rows) and new_row < len(new_rows):
+            assert len(cur_data_rows[cur_row]) == len(cur_rows[0])
+            assert len(new_rows[new_row]) == len(headers)
+            if cur_data_rows[cur_row][0] < new_rows[new_row][0]:
+                cur_row += 1
+                continue
+            elif cur_data_rows[cur_row][0] > new_rows[new_row][0]:
+                new_row += 1
+                continue
+            else:
+                assert cur_data_rows[cur_row][0] == new_rows[new_row][0]
+                for c in range(len(headers)):
+                    if cur_data_rows[cur_row][c] == new_rows[new_row][c]:
+                        continue
+                    else:
+                        print(f"Updating {table_name} with most recent data at {cur_data_rows[cur_row][0]}: {cur_data_rows[cur_row][c]} -> {new_rows[new_row][c]}")
+                        cur_data_rows[cur_row][c] = new_rows[new_row][c]
+                cur_row += 1
+                new_row += 1
+        while new_row < len(new_rows):
+            cur_data_rows.append(new_rows[new_row])
+            new_row += 1
+    save_as_csv(table_name, headers, cur_data_rows)
+
 
 def get_page(url):
     """Constructs and returns a DOM of the HTML content of `url` passed"""
 
-#    contents = urllib.request.urlopen(url).read()
-    contents = open('https _www.sst.dk_da_corona_tal-og-overvaagning.html', 'r').read()
+    contents = urllib.request.urlopen(url).read()
+#    contents = open('https _www.sst.dk_da_corona_tal-og-overvaagning.html', 'r').read()
     print("File fetched")
     return lxml.html.document_fromstring(contents)
 
@@ -66,12 +98,16 @@ def get_table_rows(dom, xpath):
 
 
 dom = get_page(SOURCE_URL)
+
 hospitalised = get_table_rows(dom, XPATH_HOSPITALISED)
-save_as_csv('covid-19-hospitalised', hospitalised[0], hospitalised[1:])
+update_csv('covid-19-hospitalised', hospitalised[0], hospitalised[1:])
+
 icu = get_table_rows(dom, XPATH_ICU)
-save_as_csv('covid-19-icu', icu[0], icu[1:])
+update_csv('covid-19-icu', icu[0], icu[1:])
+
 icu_vent = get_table_rows(dom, XPATH_ICU_VENT)
-save_as_csv('covid-19-icu_vent', icu_vent[0], icu_vent[1:])
+update_csv('covid-19-icu_vent', icu_vent[0], icu_vent[1:])
+
 tests = get_table_rows(dom, XPATH_TESTS)
-save_as_csv('covid-19-tests', tests[0], tests[1:])
+update_csv('covid-19-tests', tests[0], tests[1:])
 
