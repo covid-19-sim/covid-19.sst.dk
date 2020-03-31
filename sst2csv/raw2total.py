@@ -101,6 +101,6 @@ def generate_national_table():
                total_deaths if date in deaths else None,
                ]
         rows.append(row)
-    save_as_csv('covid-19-dk', headers, rows)
+    save_as_csv('total-covid-19-dk', headers, rows)
 
 generate_national_table()
