@@ -82,7 +82,7 @@ def get_table_rows(dom, xpath):
         else:
             # use regular td tags
             for td in tds:
-                cells.append(td.text_content().strip().replace('✱', ''))
+                cells.append(td.text_content().replace('✱', '').strip())
         date_match = re.compile(DATE_REGEXP).match(cells[0])
         if cells[0] == '':  # This is header.
             cells[0] = 'Dato'
