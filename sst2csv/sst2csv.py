@@ -108,7 +108,7 @@ def add_early(complete_table):
     with open('sst-covid19-early.csv') as csvDataFile:
         csvReader = csv.reader(csvDataFile, lineterminator='\n')
         early_records = sorted(list(csvReader)[1:], key=lambda r: r[0])
-        assert len(early_records) == 14, len(early_records)
+        assert len(early_records) >= 14, len(early_records)
         assert len(early_records[0]) == len(complete_table[0]), f'Number of columns mismatch {len(early_records[0])} != {len(complete_table[0])}'
         ctj = 0
         test_count = 0
