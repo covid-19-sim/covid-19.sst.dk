@@ -7,10 +7,10 @@ import urllib.request
 DATE_REGEXP = '^(\\d+)\\. (\\w*)$'
 
 SOURCE_URL = 'https://www.sst.dk/da/corona/tal-og-overvaagning'
-XPATH_HOSPITALISED = ' /html/body/div[3]/main/article/div[2]/div/div[20]/div[1]/table'
-XPATH_ICU = '     /html/body/div[3]/main/article/div[2]/div/div[20]/div[2]/table'
-XPATH_ICU_VENT = '/html/body/div[3]/main/article/div[2]/div/div[20]/div[3]/table'
-XPATH_TESTS = '   /html/body/div[3]/main/article/div[2]/div/div[4]/div/table'
+XPATH_TESTS = '       /html/body/div[3]/main/article/div[2]/div/div[3]/div/table'
+XPATH_HOSPITALISED = '/html/body/div[3]/main/article/div[2]/div/div[15]/div[1]/table'
+XPATH_ICU = '         /html/body/div[3]/main/article/div[2]/div/div[15]/div[2]/table'
+XPATH_ICU_VENT = '    /html/body/div[3]/main/article/div[2]/div/div[15]/div[3]/table'
 
 
 def save_as_csv(table_name, headers, rows):
@@ -99,15 +99,16 @@ def get_table_rows(dom, xpath):
 
 dom = get_page(SOURCE_URL)
 
+tests = get_table_rows(dom, XPATH_TESTS)
+update_csv('sst-raw-data-tests', tests[0], tests[1:-1])  # Skip last observation as it is inaccurate
+
 hospitalised = get_table_rows(dom, XPATH_HOSPITALISED)
-update_csv('covid-19-hospitalised', hospitalised[0], hospitalised[1:])
+update_csv('sst-raw-data-hospitalised', hospitalised[0], hospitalised[1:])
 
 icu = get_table_rows(dom, XPATH_ICU)
-update_csv('covid-19-icu', icu[0], icu[1:])
+update_csv('sst-raw-data-icu', icu[0], icu[1:])
 
 icu_vent = get_table_rows(dom, XPATH_ICU_VENT)
-update_csv('covid-19-icu_vent', icu_vent[0], icu_vent[1:])
+update_csv('sst-raw-data-icu_vent', icu_vent[0], icu_vent[1:])
 
-tests = get_table_rows(dom, XPATH_TESTS)
-update_csv('covid-19-tests', tests[0], tests[1:-1])  # Skip last observation as it is inaccurate
 

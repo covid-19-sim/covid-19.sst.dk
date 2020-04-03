@@ -51,7 +51,7 @@ def save_as_csv(table_name, headers, rows):
 
 
 def load_csv(table_name):
-    with open('../covid-19-' + table_name + '.csv', mode='r') as csvDataFile:
+    with open('../' + table_name + '.csv', mode='r') as csvDataFile:
         csvReader = csv.reader(csvDataFile, lineterminator='\n')
         rows = list(csvReader)
     headers = rows[0]
@@ -66,11 +66,11 @@ def load_csv(table_name):
 
 
 def generate_national_table():
-    tests_header, tests = load_csv('tests')
-    hospitalised_header, hospitalised = load_csv('hospitalised')
-    icu_header, icu = load_csv('icu')
-    icu_vent_header, icu_vent = load_csv('icu_vent')
-    deaths_header, deaths = load_csv('deaths')
+    tests_header, tests = load_csv('sst-raw-data-tests')
+    hospitalised_header, hospitalised = load_csv('sst-raw-data-hospitalised')
+    icu_header, icu = load_csv('sst-raw-data-icu')
+    icu_vent_header, icu_vent = load_csv('sst-raw-data-icu_vent')
+    deaths_header, deaths = load_csv('ssi-pdf-data-deaths')
 
     dates = set()
     dates.update(tests.keys())
