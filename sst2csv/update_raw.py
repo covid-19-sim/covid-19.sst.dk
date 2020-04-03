@@ -109,5 +109,5 @@ icu_vent = get_table_rows(dom, XPATH_ICU_VENT)
 update_csv('covid-19-icu_vent', icu_vent[0], icu_vent[1:])
 
 tests = get_table_rows(dom, XPATH_TESTS)
-update_csv('covid-19-tests', tests[0], tests[1:])
+update_csv('covid-19-tests', tests[0], tests[1:-1])  # Skip last observation as it is inaccurate
 
