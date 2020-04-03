@@ -5,12 +5,11 @@ import re
 import urllib.request
 
 DATE_REGEXP = '^(\\d+)\\. (\\w*)$'
-
 SOURCE_URL = 'https://www.sst.dk/da/corona/tal-og-overvaagning'
-XPATH_TESTS = '       /html/body/div[3]/main/article/div[2]/div/div[3]/div/table'
-XPATH_HOSPITALISED = '/html/body/div[3]/main/article/div[2]/div/div[15]/div[1]/table'
-XPATH_ICU = '         /html/body/div[3]/main/article/div[2]/div/div[15]/div[2]/table'
-XPATH_ICU_VENT = '    /html/body/div[3]/main/article/div[2]/div/div[15]/div[3]/table'
+XPATH_TESTS = '       //div/h3[text()="Antallet af tests og bekræftede tilfælde af COVID-19"]/following-sibling::div/table'
+XPATH_HOSPITALISED = '//div/h3[descendant-or-self::*/text()="Indlagte patienter med bekræftet COVID-19"]/following-sibling::div[1]/table'
+XPATH_ICU = '         //div/h3[descendant-or-self::*/text()="Indlagte patienter med bekræftet COVID-19 på intensivafdeling"]/following-sibling::div[1]/table'
+XPATH_ICU_VENT = '    //div/h3[descendant-or-self::*/text()="Indlagte patienter med bekræftet COVID-19 på intensivafdeling og i respirator"]/following-sibling::div[1]/table'
 
 
 def save_as_csv(table_name, headers, rows):
