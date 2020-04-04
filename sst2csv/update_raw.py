@@ -99,7 +99,7 @@ def get_table_rows(dom, xpath):
 dom = get_page(SOURCE_URL)
 
 tests = get_table_rows(dom, XPATH_TESTS)
-update_csv('sst-raw-data-tests', tests[0], tests[1:-1])  # Skip last observation as it is inaccurate
+update_csv('sst-raw-data-tests', tests[0], tests[1:])
 
 hospitalised = get_table_rows(dom, XPATH_HOSPITALISED)
 update_csv('sst-raw-data-hospitalised', hospitalised[0], hospitalised[1:])

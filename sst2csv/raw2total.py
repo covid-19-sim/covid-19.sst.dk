@@ -50,13 +50,14 @@ def save_as_csv(table_name, headers, rows):
             data_writer.writerow(row)
 
 
-def load_csv(table_name):
+def load_csv(table_name, skip_last = False):
     with open('../' + table_name + '.csv', mode='r') as csvDataFile:
         csvReader = csv.reader(csvDataFile, lineterminator='\n')
         rows = list(csvReader)
     headers = rows[0]
     data = dict()
-    for row in rows[1:]:
+    data_rows = rows[1:-1] if skip_last else rows[1:]
+    for row in data_rows:
         data[row[0]] = dict()
         for c in range(len(headers)):
             data[row[0]][headers[c]] = row[c]
@@ -66,11 +67,11 @@ def load_csv(table_name):
 
 
 def generate_national_table():
-    tests_header, tests = load_csv('sst-raw-data-tests')
+    tests_header, tests = load_csv('sst-raw-data-tests', True)
     hospitalised_header, hospitalised = load_csv('sst-raw-data-hospitalised')
     icu_header, icu = load_csv('sst-raw-data-icu')
     icu_vent_header, icu_vent = load_csv('sst-raw-data-icu_vent')
-    deaths_header, deaths = load_csv('ssi-pdf-data-deaths')
+    deaths_header, deaths = load_csv('ssi-pdf-data-deaths', True)
 
     dates = set()
     dates.update(tests.keys())
