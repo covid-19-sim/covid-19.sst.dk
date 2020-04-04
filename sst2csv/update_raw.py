@@ -6,7 +6,7 @@ import urllib.request
 
 DATE_REGEXP = '^(\\d+)\\. (\\w*)$'
 SOURCE_URL = 'https://www.sst.dk/da/corona/tal-og-overvaagning'
-XPATH_TESTS = '       //div/h3[text()="Antallet af tests og bekræftede tilfælde af COVID-19"]/following-sibling::div/table'
+XPATH_TESTS = '       //div/h3[descendant-or-self::*/text()="Antallet af tests og bekræftede tilfælde af COVID-19"]/following-sibling::div[1]/table'
 XPATH_HOSPITALISED = '//div/h3[descendant-or-self::*/text()="Indlagte patienter med bekræftet COVID-19"]/following-sibling::div[1]/table'
 XPATH_ICU = '         //div/h3[descendant-or-self::*/text()="Indlagte patienter med bekræftet COVID-19 på intensivafdeling"]/following-sibling::div[1]/table'
 XPATH_ICU_VENT = '    //div/h3[descendant-or-self::*/text()="Indlagte patienter med bekræftet COVID-19 på intensivafdeling og i respirator"]/following-sibling::div[1]/table'
