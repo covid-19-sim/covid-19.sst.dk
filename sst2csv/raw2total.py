@@ -58,6 +58,7 @@ def load_csv(table_name, skip_last = False):
     data = dict()
     data_rows = rows[1:-1] if skip_last else rows[1:]
     for row in data_rows:
+        assert row[0] not in data, f"Date {row[0]} already exists in {table_name}.csv"
         data[row[0]] = dict()
         for c in range(len(headers)):
             data[row[0]][headers[c]] = row[c]
