@@ -4,7 +4,7 @@ import lxml.html
 import re
 import urllib.request
 
-DATE_REGEXP = '^(\\d+)\\. (\\w*)$'
+DATE_REGEXP = '^(\\d+) ?\\. ?(\\w*)$'
 SOURCE_URL = 'https://www.sst.dk/da/corona/tal-og-overvaagning'
 XPATH_TESTS = '       //div/h3[descendant-or-self::*/text()="Antallet af tests og bekræftede tilfælde af COVID-19"]/following-sibling::div[1]/table'
 XPATH_HOSPITALISED = '//div/h3[descendant-or-self::*/text()="Indlagte patienter med bekræftet COVID-19"]/following-sibling::div[1]/table'
