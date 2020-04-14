@@ -48,6 +48,7 @@ def update_csv(table_name, headers, new_rows):
                 cur_row += 1
                 new_row += 1
         while new_row < len(new_rows):
+            assert new_rows[new_row][0] not in [r[0] for r in cur_data_rows]
             cur_data_rows.append(new_rows[new_row])
             new_row += 1
     save_as_csv(table_name, headers, cur_data_rows)
