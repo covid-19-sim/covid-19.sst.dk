@@ -6,7 +6,7 @@ import urllib.request
 
 DATE_REGEXP = '^(\\d+) ?\\. ?(\\w*)$'
 SOURCE_URL = 'https://www.sst.dk/da/corona/tal-og-overvaagning'
-XPATH_TESTS = '       //div/h3[contains(descendant-or-self::*/text(), "2.4 Antallet af tests og bekræftede tilfælde af COVID-19")]/following-sibling::div[1]/table'
+XPATH_TESTS = '       //div/h3[contains(descendant-or-self::*/text(), "2.4 Antallet af tests og bekræftede smittede med COVID-19")]/following-sibling::div[1]/table'
 XPATH_HOSPITALISED = '//div/h3[descendant-or-self::*/text()="3.8 Indlagte patienter med bekræftet COVID-19"]/following-sibling::div[1]/table'
 XPATH_ICU = '         //div/h3[descendant-or-self::*/text()="3.9 Indlagte patienter med bekræftet COVID-19 på intensivafdeling"]/following-sibling::div[1]/table'
 XPATH_ICU_VENT = '    //div/h3[descendant-or-self::*/text()="3.10 Indlagte patienter med bekræftet COVID-19 på intensivafdeling og i respirator"]/following-sibling::div[1]/table'
@@ -24,7 +24,7 @@ def update_csv(table_name, headers, new_rows):
         csvReader = csv.reader(csvDataFile, lineterminator='\n')
         cur_rows = list(csvReader)
         cur_data_rows = sorted(cur_rows[1:], key=lambda r: r[0])
-        assert headers == cur_rows[0]
+        assert headers == cur_rows[0], f"{table_name}: expected F{headers}"
         cur_row = 0
         new_row = 0
         while cur_row < len(cur_data_rows) and new_row < len(new_rows):
@@ -65,7 +65,7 @@ def get_page(url):
 def get_table_rows(dom, xpath):
     """Given a dom and xpath, returns all its rows"""
     table = dom.xpath(xpath)
-    assert len(table) == 1, len(table)
+    assert len(table) == 1, f"{xpath} => {len(table)}"
     rows = []
     #    assert "Hele landet" == table.xpath(".//tr")[0].xpath('.//td')[NATIONAL_COLUMN].text_content().strip()
     for tr in table[0].xpath(".//tr"):
