@@ -7,9 +7,9 @@ import urllib.request
 DATE_REGEXP = '^(\\d+) ?\\. ?(\\w*)$'
 SOURCE_URL = 'https://www.sst.dk/da/corona/tal-og-overvaagning'
 XPATH_TESTS = '       //div/h3[contains(descendant-or-self::*/text(), "2.4 Antallet af tests og bekræftede smittede med COVID-19")]/following-sibling::div[1]/table'
-XPATH_HOSPITALISED = '//div/h3[descendant-or-self::*/text()="3.8 Indlagte patienter med bekræftet COVID-19"]/following-sibling::div[1]/table'
-XPATH_ICU = '         //div/h3[descendant-or-self::*/text()="3.9 Indlagte patienter med bekræftet COVID-19 på intensivafdeling"]/following-sibling::div[1]/table'
-XPATH_ICU_VENT = '    //div/h3[descendant-or-self::*/text()="3.10 Indlagte patienter med bekræftet COVID-19 på intensivafdeling og i respirator"]/following-sibling::div[1]/table'
+XPATH_HOSPITALISED = '//div/h3[descendant-or-self::*/text()="3.7 Indlagte patienter med bekræftet COVID-19"]/following-sibling::div[1]/table'
+XPATH_ICU = '         //div/h3[descendant-or-self::*/text()="3.8 Indlagte patienter med bekræftet COVID-19 på intensivafdeling"]/following-sibling::div[1]/table'
+XPATH_ICU_VENT = '    //div/h3[descendant-or-self::*/text()="3.9 Indlagte patienter med bekræftet COVID-19 på intensivafdeling og i respirator"]/following-sibling::div[1]/table'
 
 def save_as_csv(table_name, headers, rows):
     with open("../" + table_name + '.csv', mode='w') as data_file:
