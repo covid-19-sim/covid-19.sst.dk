@@ -1,8 +1,12 @@
 import csv
+import io
 
 import lxml.html
 import re
+from zipfile import ZipFile
 import urllib.request
+
+import unicodecsv as unicodecsv
 
 DATE_REGEXP = '^(\\d+) ?\\. ?(\\w*)$'
 SOURCE_URL = 'https://www.sst.dk/da/corona/tal-og-overvaagning'
@@ -10,6 +14,9 @@ XPATH_TESTS = '       //div/h3[contains(descendant-or-self::*/text(), "2.4 Antal
 XPATH_HOSPITALISED = '//div/h3[descendant-or-self::*/text()="3.7 Indlagte patienter med bekræftet COVID-19"]/following-sibling::div[1]/table'
 XPATH_ICU = '         //div/h3[descendant-or-self::*/text()="3.8 Indlagte patienter med bekræftet COVID-19 på intensivafdeling"]/following-sibling::div[1]/table'
 XPATH_ICU_VENT = '    //div/h3[descendant-or-self::*/text()="3.9 Indlagte patienter med bekræftet COVID-19 på intensivafdeling og i respirator"]/following-sibling::div[1]/table'
+SSI_SOURCE_URL = 'https://www.ssi.dk/aktuelt/sygdomsudbrud/coronavirus/covid-19-i-danmark-epidemiologisk-overvaagningsrapport'
+XPATH_ZIP_URL =     "//blockquote[1]/div/p[2]/a[contains(text(),'Hent fil med data fra den daglige epidemiologiske rapport')]/@href"
+
 
 def save_as_csv(table_name, headers, rows):
     with open("../" + table_name + '.csv', mode='w') as data_file:
@@ -96,6 +103,17 @@ def get_table_rows(dom, xpath):
     return rows[:1] + sorted(rows[1:], key=lambda r: r[0])
 
 
+def getdeaths(dom):
+    link = dom.xpath(XPATH_ZIP_URL)
+    assert len(link) == 1, f"{XPATH_ZIP_URL} => {len(link)}"
+    with ZipFile(io.BytesIO(urllib.request.urlopen(link[0]).read())) as myzip:
+        with myzip.open('Deaths_over_time.csv', mode='r') as csvDataFile:
+            csvReader = unicodecsv.reader(csvDataFile, lineterminator='\n', encoding='utf-8-sig', delimiter=';')
+
+            rows = list(csvReader)
+    return rows[:1] + sorted(rows[1:-1], key=lambda r: r[0])
+
+
 dom = get_page(SOURCE_URL)
 
 tests = get_table_rows(dom, XPATH_TESTS)
@@ -110,4 +128,6 @@ update_csv('sst-raw-data-icu', icu[0], icu[1:])
 icu_vent = get_table_rows(dom, XPATH_ICU_VENT)
 update_csv('sst-raw-data-icu_vent', icu_vent[0], icu_vent[1:])
 
+deaths = getdeaths(get_page(SSI_SOURCE_URL))
+update_csv('ssi-raw-data-deaths', deaths[0], deaths[1:])
 

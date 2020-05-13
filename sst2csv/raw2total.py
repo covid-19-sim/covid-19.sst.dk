@@ -72,7 +72,7 @@ def generate_national_table():
     hospitalised_header, hospitalised = load_csv('sst-raw-data-hospitalised')
     icu_header, icu = load_csv('sst-raw-data-icu')
     icu_vent_header, icu_vent = load_csv('sst-raw-data-icu_vent')
-    deaths_header, deaths = load_csv('ssi-pdf-data-deaths', True)
+    deaths_header, deaths = load_csv('ssi-raw-data-deaths', True)
 
     dates = set()
     dates.update(tests.keys())
@@ -90,7 +90,7 @@ def generate_national_table():
     for date in sorted_dates:
         total_tested += sanitise_number(tests[date]['Testede for COVID-19']) if date in tests else 0
         total_confirmed += sanitise_number(tests[date]['Bekræftede COVID-19 smittede']) if date in tests else 0
-        total_deaths += sanitise_number(deaths[date]['Antal dødsfald med COVID-19 infektion']) if date in deaths else 0
+        total_deaths += sanitise_number(deaths[date]['Antal_døde']) if date in deaths else 0
         row = [date,
                sanitise_number(tests[date]['Testede for COVID-19']) if date in tests else None,
                total_tested if date in tests else None,
@@ -99,7 +99,7 @@ def generate_national_table():
                sanitise_number(hospitalised[date]['Hele landet']) if date in hospitalised else None,
                sanitise_number(icu[date]['Hele landet']) if date in icu else None,
                sanitise_number(icu_vent[date]['Hele landet']) if date in icu_vent else None,
-               sanitise_number(deaths[date]['Antal dødsfald med COVID-19 infektion']) if date in deaths else None,
+               sanitise_number(deaths[date]['Antal_døde']) if date in deaths else None,
                total_deaths if date in deaths else None,
                ]
         rows.append(row)
