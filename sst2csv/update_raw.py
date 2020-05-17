@@ -31,7 +31,7 @@ def update_csv(table_name, headers, new_rows):
         csvReader = csv.reader(csvDataFile, lineterminator='\n')
         cur_rows = list(csvReader)
         cur_data_rows = sorted(cur_rows[1:], key=lambda r: r[0])
-        assert headers == cur_rows[0], f"{table_name}: expected F{headers}"
+        assert headers == cur_rows[0], f"{table_name}: Expected {cur_rows[0]}. Got {headers}"
         cur_row = 0
         new_row = 0
         while cur_row < len(cur_data_rows) and new_row < len(new_rows):
@@ -69,6 +69,22 @@ def get_page(url):
     return lxml.html.document_fromstring(contents)
 
 
+def sanitise_row(cells):
+    date_match = re.compile(DATE_REGEXP).match(cells[0])
+    if cells[0] == '':  # This is header.
+        cells[0] = 'Dato'
+    elif cells[0] != '' and not date_match:
+        print(f"skipping row with date = '{cells[0]}'")
+        return False
+    else:
+        monthday = int(date_match.groups()[0])
+        month = ['januar', 'februar', 'marts', 'april', 'maj', 'juni', 'juli'].index(date_match.groups()[1]) + 1
+        cells[0] = f"2020-{month:02}-{monthday:02}"
+    for i in range(len(cells)):
+        cells[i] = cells[i].replace('✱', '').strip()
+    return True
+
+
 def get_table_rows(dom, xpath):
     """Given a dom and xpath, returns all its rows"""
     table = dom.xpath(xpath)
@@ -89,35 +105,39 @@ def get_table_rows(dom, xpath):
             # use regular td tags
             for td in tds:
                 cells.append(td.text_content().replace('✱', '').strip())
-        date_match = re.compile(DATE_REGEXP).match(cells[0])
-        if cells[0] == '':  # This is header.
-            cells[0] = 'Dato'
-        elif cells[0] != '' and not date_match:
-            print(f"skipping row with date = '{cells[0]}'")
+        if not sanitise_row(cells):
             continue
-        else:
-            monthday = int(date_match.groups()[0])
-            month = ['januar', 'februar', 'marts', 'april', 'maj', 'juni', 'juli'].index(date_match.groups()[1]) + 1
-            cells[0] = f"2020-{month:02}-{monthday:02}"
         rows.append(cells)
     return rows[:1] + sorted(rows[1:], key=lambda r: r[0])
 
 
-def getdeaths(dom):
+def convert_from_zip(dom):
     link = dom.xpath(XPATH_ZIP_URL)
     assert len(link) == 1, f"{XPATH_ZIP_URL} => {len(link)}"
     with ZipFile(io.BytesIO(urllib.request.urlopen(link[0]).read())) as myzip:
         with myzip.open('Deaths_over_time.csv', mode='r') as csvDataFile:
             csvReader = unicodecsv.reader(csvDataFile, lineterminator='\n', encoding='utf-8-sig', delimiter=';')
-
             rows = list(csvReader)
-    return rows[:1] + sorted(rows[1:-1], key=lambda r: r[0])
+            deaths = rows[:1] + sorted(rows[1:-1], key=lambda r: r[0])
+            update_csv('ssi-raw-data-deaths', deaths[0], deaths[1:])
+
+        with myzip.open('Test_pos_over_time.csv', mode='r') as csvDataFile:
+            csvReader = unicodecsv.reader(csvDataFile, lineterminator='\n', encoding='utf-8-sig', delimiter=';')
+            rows = []
+            csv_rows = list(csvReader)
+            rows.append(csv_rows[0])
+            for row in csv_rows[1:]:
+                if not sanitise_row(row):
+                    continue
+                rows.append(row)
+            tests = rows[:1] + sorted(rows[1:-1], key=lambda r: r[0])
+            update_csv('ssi-raw-data-tests', tests[0], tests[1:])
+
+        # myzip.extract('Deaths_over_time.csv','../')
+        # myzip.extract('Test_pos_over_time.csv','../')
 
 
 dom = get_page(SOURCE_URL)
-
-tests = get_table_rows(dom, XPATH_TESTS)
-update_csv('sst-raw-data-tests', tests[0], tests[1:])
 
 hospitalised = get_table_rows(dom, XPATH_HOSPITALISED)
 update_csv('sst-raw-data-hospitalised', hospitalised[0], hospitalised[1:])
@@ -128,6 +148,5 @@ update_csv('sst-raw-data-icu', icu[0], icu[1:])
 icu_vent = get_table_rows(dom, XPATH_ICU_VENT)
 update_csv('sst-raw-data-icu_vent', icu_vent[0], icu_vent[1:])
 
-deaths = getdeaths(get_page(SSI_SOURCE_URL))
-update_csv('ssi-raw-data-deaths', deaths[0], deaths[1:])
+convert_from_zip(get_page(SSI_SOURCE_URL))
 
