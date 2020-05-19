@@ -124,7 +124,7 @@ def convert_from_zip(dom):
         with myzip.open('Test_pos_over_time.csv', mode='r') as csvDataFile:
             csvReader = unicodecsv.reader(csvDataFile, lineterminator='\n', encoding='utf-8-sig', delimiter=';')
             rows = list(csvReader)
-            tests = rows[:1] + sorted(rows[1:-1], key=lambda r: r[0])
+            tests = rows[:1] + sorted(rows[1:-2], key=lambda r: r[0])
             update_csv('ssi-raw-data-tests', tests[0], tests[1:])
 
         # myzip.extract('Deaths_over_time.csv','../')
