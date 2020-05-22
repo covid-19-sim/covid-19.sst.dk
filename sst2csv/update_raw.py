@@ -15,7 +15,7 @@ XPATH_HOSPITALISED = '//div/h3[descendant-or-self::*/text()="3.7 Indlagte patien
 XPATH_ICU = '         //div/h3[descendant-or-self::*/text()="3.8 Indlagte patienter med bekræftet COVID-19 på intensivafdeling"]/following-sibling::div[1]/table'
 XPATH_ICU_VENT = '    //div/h3[descendant-or-self::*/text()="3.9 Indlagte patienter med bekræftet COVID-19 på intensivafdeling og i respirator"]/following-sibling::div[1]/table'
 SSI_SOURCE_URL = 'https://www.ssi.dk/sygdomme-beredskab-og-forskning/sygdomsovervaagning/c/covid19-overvaagning'
-XPATH_ZIP_URL =     "//*[@id='top']/div[2]/section[6]/blockquote/div/strong/a[@title='Hent fil med overvågningsdata' and contains(text(),'fil med overvågningsdata')]/@href"
+XPATH_ZIP_URL =     "//*[@id='top']/div[2]/section[6]/blockquote/div/strong/a[@title='fil med overvågningsdata' and contains(text(),'fil med overvågningsdata')]/@href"
 
 def save_as_csv(table_name, headers, rows):
     with open("../" + table_name + '.csv', mode='w') as data_file:
