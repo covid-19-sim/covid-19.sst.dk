@@ -77,7 +77,14 @@ def sanitise_row(cells):
         return False
     else:
         monthday = int(date_match.groups()[0])
-        month = ['januar', 'februar', 'marts', 'april', 'maj', 'juni', 'juli'].index(date_match.groups()[1]) + 1
+        months = [['jan','januar'],
+                  ['feb', 'februar'],
+                  ['mar', 'marts'],
+                  ['apr', 'april'],
+                  ['maj'],
+                  ['jun', 'juni'],
+                  ['jul', 'juli']]
+        month = next(i for i,m in enumerate(months) if date_match.groups()[1] in m) + 1
         cells[0] = f"2020-{month:02}-{monthday:02}"
     for i in range(len(cells)):
         cells[i] = cells[i].replace('✱', '').strip()
