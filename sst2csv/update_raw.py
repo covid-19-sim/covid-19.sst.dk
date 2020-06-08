@@ -82,7 +82,7 @@ def sanitise_row(cells):
                   ['mar', 'marts'],
                   ['apr', 'april'],
                   ['maj'],
-                  ['jun', 'juni'],
+                  ['jun', 'juni', 'juní'],  # Mistyping, typical for manual work
                   ['jul', 'juli']]
         month = next(i for i,m in enumerate(months) if date_match.groups()[1] in m) + 1
         cells[0] = f"2020-{month:02}-{monthday:02}"
