@@ -11,11 +11,12 @@ import unicodecsv as unicodecsv
 DATE_REGEXP = '^(\\d+) ?\\. ?(\\w*)$'
 SOURCE_URL = 'https://www.sst.dk/da/corona/tal-og-overvaagning'
 XPATH_TESTS = '       //div/h3[contains(., "2.4 Antallet af tests og bekræftede smittede med COVID-19")]/following-sibling::div[1]/table'
-XPATH_HOSPITALISED = '//div/h3[.="3.7 Indlagte patienter med bekræftet COVID-19"]/following-sibling::div[1]/table'
-XPATH_ICU = '         //div/h3[.="3.8 Indlagte patienter med bekræftet COVID-19 på intensivafdeling"]/following-sibling::div[1]/table'
-XPATH_ICU_VENT = '    //div/h3[.="3.9 Indlagte patienter med bekræftet COVID-19 på intensivafdeling og i respirator"]/following-sibling::div[1]/table'
+XPATH_HOSPITALISED = '//div/h3[.="3.7 Indlagte patienter: pr. dag"]/following-sibling::div[1]/table'
+XPATH_ICU = '         //div/h3[.="3.8 Indlagte patienter på intensiv: pr. dag"]/following-sibling::div[1]/table'
+XPATH_ICU_VENT = '    //div/h3[normalize-space(translate(., "&#160;", " "))="3.9 Indlagte patienter på intensiv og i respirator: pr. dag"]/following-sibling::div[1]/table'
+XPATH_ICU_VENT = '    //div/h3[starts-with(.,"3.9 Indlagte patienter på")]/following-sibling::div[1]/table'
 SSI_SOURCE_URL = 'https://www.ssi.dk/sygdomme-beredskab-og-forskning/sygdomsovervaagning/c/covid19-overvaagning'
-XPATH_ZIP_URL =     "//*[@id='top']/div[2]/section[6]/blockquote/div/strong/a[@title='fil med overvågningsdata' and contains(text(),'fil med overvågningsdata')]/@href"
+XPATH_ZIP_URL =     "//*[@id='top']/div[2]/section[6]/blockquote/div/strong/a[@title='Link til fil med overvågningsdata' and contains(text(),'fil med overvågningsdata')]/@href"
 
 def save_as_csv(table_name, headers, rows):
     with open("../" + table_name + '.csv', mode='w') as data_file:
