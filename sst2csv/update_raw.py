@@ -11,12 +11,12 @@ import unicodecsv as unicodecsv
 DATE_REGEXP = '^(\\d+) ?\\. ?(\\w*)$'
 SOURCE_URL = 'https://www.sst.dk/da/corona/tal-og-overvaagning'
 XPATH_TESTS = '       //div/h3[contains(., "2.4 Antallet af tests og bekræftede smittede med COVID-19")]/following-sibling::div[1]/table'
-XPATH_HOSPITALISED = '//div/h3[.="3.7 Indlagte patienter: pr. dag"]/following-sibling::div[1]/table'
-XPATH_ICU = '         //div/h3[.="3.8 Indlagte patienter på intensiv: pr. dag"]/following-sibling::div[1]/table'
-XPATH_ICU_VENT = '    //div/h3[normalize-space(translate(., "&#160;", " "))="3.9 Indlagte patienter på intensiv og i respirator: pr. dag"]/following-sibling::div[1]/table'
+XPATH_HOSPITALISED = '//div/h3[.="3.7 Indlagte patienter: De seneste to uger"]/following-sibling::div[1]/table'
+XPATH_ICU = '         //div/h3[.="3.8 Indlagte patienter på intensiv: De seneste to uger"]/following-sibling::div[1]/table'
+#XPATH_ICU_VENT = '    //div/h3[normalize-space(translate(., "&#160;", " "))="3.9 Indlagte patienter på intensiv og i respirator: pr. dag"]/following-sibling::div[1]/table'
 XPATH_ICU_VENT = '    //div/h3[starts-with(.,"3.9 Indlagte patienter på")]/following-sibling::div[1]/table'
 SSI_SOURCE_URL = 'https://www.ssi.dk/sygdomme-beredskab-og-forskning/sygdomsovervaagning/c/covid19-overvaagning'
-XPATH_ZIP_URL =     "//*[@id='top']/div[2]/section[6]/blockquote/div/strong/a[@title='Link til fil med overvågningsdata' and contains(text(),'fil med overvågningsdata')]/@href"
+XPATH_ZIP_URL =     "//*[@id='top']/div[2]/section[6]/blockquote/div/strong/a[@title='Data Epidemiologiske Rapport fra den 5. august 2020' and contains(text(),'fil med overvågningsdata')]/@href"
 
 def save_as_csv(table_name, headers, rows):
     with open("../" + table_name + '.csv', mode='w') as data_file:
@@ -84,7 +84,13 @@ def sanitise_row(cells):
                   ['apr', 'april'],
                   ['maj'],
                   ['jun', 'juni', 'juní'],  # Mistyping, typical for manual work
-                  ['jul', 'juli']]
+                  ['jul', 'juli'],
+                  ['aug', 'august'],
+                  ['sep', 'september'],
+                  ['okt', 'oktober'],
+                  ['nov', 'november'],
+                  ['dec', 'december']
+                  ]
         month = next(i for i,m in enumerate(months) if date_match.groups()[1] in m) + 1
         cells[0] = f"2020-{month:02}-{monthday:02}"
     for i in range(len(cells)):
