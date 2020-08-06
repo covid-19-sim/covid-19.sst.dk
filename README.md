@@ -22,14 +22,16 @@ That includes
 
 * Deaths
 
+### Semi-automatic
+There are some handy scripts to some of the manual work in fetching and updating CSV files, this can be found in [sst2csv](sst2csv).
+
 # Comments on data
 
 ## Data sources and quality
-Some data comes from the _regions_ is then sent to SST and is then published on the page mentioned above.
-Some data is collected by Statens Serum Institut and then sent to SST and is then published on the page mentioned above.
+Some data comes from the _regions_. Then it is then sent to Sundhedsstyrelsen (SST) and is then published on the page mentioned above.
+Some data is collected by Statens Serum Institut (SSI) and then sent to SST and is then published on the page mentioned above.
 A number of times we have seen that data for older dates have been changed on the page.
-The reason for this is unknown.
-
+The reason for this is unknown, but it might be all natural, we get wiser of history as time goes.
 Finally the information is then copied again to https://politi.dk/coronavirus-i-danmark/foelg-smittespredningen-globalt-regionalt-og-lokalt
 
 
